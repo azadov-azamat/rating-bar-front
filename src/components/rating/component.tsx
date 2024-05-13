@@ -11,7 +11,7 @@ export default function RatingComponent() {
         setRating(index);
     };
 
-    function onClick () {
+    function onClick() {
         toast.success("Thank you for your comment!")
     }
 
@@ -37,8 +37,15 @@ export default function RatingComponent() {
                         />
                     ))}
                 </div>
-                <Textarea className="w-full" placeholder="Leave a comment..." rows={3} onPointerEnterCapture={undefined}
-                          onPointerLeaveCapture={undefined}/>
+                <Textarea
+                    label={'Comment'}
+                    className="w-full"
+                    placeholder="Leave a comment..."
+                    rows={3}
+                    onPointerEnterCapture={undefined}
+                    onPointerLeaveCapture={undefined}
+                    autoFocus
+                />
                 <div className={'flex justify-end w-full'}>
                     <Button
                         variant={'filled'}
