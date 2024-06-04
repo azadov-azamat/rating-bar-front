@@ -1,19 +1,51 @@
 import {Avatar, Button, Card, CardBody, Textarea} from "@material-tailwind/react";
 import React from "react";
 import {toast} from "react-toastify";
-
+import {useLocation} from "react-router-dom";
+import {useAppDispatch, useAppSelector} from "../../redux/hooks.ts";
+import qs from "qs";
+import {createRate, getUserById} from "../../redux/reducers/variable.ts";
+import {RateDataProps} from "../../interface/redux/variable.interface.ts";
 
 export default function RatingComponent() {
 
+    const dispatch = useAppDispatch()
+    const location = useLocation()
+
+    const {user} = useAppSelector(state => state.variables)
+
     const [rating, setRating] = React.useState<number>(0);
+    const [comment, setComment] = React.useState<string>('');
+
+    const query = qs.parse(location.search, {ignoreQueryPrefix: true})
+
+    React.useEffect(() => {
+        if (query.userId && !user) {
+            dispatch(getUserById(query.userId.toString()))
+        }
+    }, [query])
 
     const handleRating = (index: number) => {
         setRating(index);
     };
 
-    function onClick() {
-        toast.success("Thank you for your comment!")
+    async function onClick() {
+        if (user) {
+            const data: RateDataProps = {
+                comment: comment,
+                rate: rating.toString(),
+                userId: user.id.toString()
+            }
+
+            await dispatch(createRate(data));
+            toast.success("Izoh bildirganingiz uchun tashakkur!");
+            setComment('');
+            setRating(0)
+        }
     }
+
+    if (!user)
+        return ""
 
     return (
         <Card className="w-full max-w-sm" placeholder={undefined} onPointerEnterCapture={undefined}
@@ -21,11 +53,12 @@ export default function RatingComponent() {
             <CardBody className="flex flex-col items-start space-y-4" placeholder={undefined}
                       onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined}>
                 <div className="flex items-center space-x-4">
-                    <Avatar src="https://docs.material-tailwind.com/img/face-2.jpg" alt="avatar" placeholder={undefined}
+                    <Avatar src={user.img || "https://docs.material-tailwind.com/img/face-2.jpg"} alt="avatar"
+                            placeholder={undefined}
                             onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined}/>
                     <div className="space-y-1">
-                        <h4 className="font-semibold">John Doe</h4>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Software Engineer at Acme Inc.</p>
+                        <h4 className="font-semibold">{user.name}</h4>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">{user.position}</p>
                     </div>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -38,12 +71,13 @@ export default function RatingComponent() {
                     ))}
                 </div>
                 <Textarea
-                    label={'Comment'}
+                    label={'Kommentariya'}
                     className="w-full"
-                    placeholder="Leave a comment..."
                     rows={3}
+                    value={comment}
                     onPointerEnterCapture={undefined}
                     onPointerLeaveCapture={undefined}
+                    onChange={(e) => setComment(e.target.value)}
                     autoFocus
                 />
                 <div className={'flex justify-end w-full'}>
@@ -53,8 +87,9 @@ export default function RatingComponent() {
                         onPointerLeaveCapture={undefined}
                         placeholder={undefined}
                         onClick={onClick}
+                        disabled={rating === 0 || !comment.length}
                     >
-                        Submit
+                        Jo'natish
                     </Button>
                 </div>
             </CardBody>

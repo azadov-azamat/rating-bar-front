@@ -1,11 +1,12 @@
-import RatingComponent from "./components/rating/component.tsx";
+import {Route, Routes} from "react-router-dom";
+import HomeController from "./view/home/controller.tsx";
 
 function App() {
 
     return (
-        <div className={"flex justify-center items-center w-full h-screen"}>
-            <RatingComponent/>
-        </div>
+        <Routes>
+            <Route path={'/'} element={<HomeController/>}/>
+        </Routes>
   )
 }
 
